@@ -34,7 +34,7 @@ public class UserController {
 
     @PutMapping("/change-password")
     @Operation(summary = "Change password")
-    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetails userDetails,
                                             ChangePasswordDto changePasswordDto) {
         userService.changePassword(userDetails.getUsername(), changePasswordDto.getOldPassword(),
                 changePasswordDto.getNewPassword());
