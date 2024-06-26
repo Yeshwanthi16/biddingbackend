@@ -2,7 +2,7 @@ package com.example.bidding.repository;
 
 import java.util.Optional;
 
-import com.example.bidding.Model.User.User;
+import com.example.bidding.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

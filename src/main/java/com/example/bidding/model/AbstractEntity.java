@@ -1,4 +1,4 @@
-package com.example.bidding.Model;
+package com.example.bidding.model;
 
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
