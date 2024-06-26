@@ -1,7 +1,7 @@
 package com.example.bidding.service.Converter;
 
 import jakarta.persistence.AttributeConverter;
-import com.example.bidding.model.user.RoleEnum;
+import com.example.bidding.entity.user.RoleEnum;
 
 public class RoleEnumConverter implements AttributeConverter<RoleEnum, String> {
 

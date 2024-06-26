@@ -1,21 +1,18 @@
-package com.example.bidding.model.user;
+package com.example.bidding.entity.user;
 
 
-import com.example.bidding.model.AbstractEntity;
+import com.example.bidding.entity.AbstractEntity;
 import com.example.bidding.service.Converter.RoleEnumConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@NoArgsConstructor
 @Data
-@Builder
-@AllArgsConstructor
 @Table(name = "_user")
 public class User extends AbstractEntity {
 

@@ -1,4 +1,4 @@
-package com.example.bidding.dto;
+package com.example.bidding.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

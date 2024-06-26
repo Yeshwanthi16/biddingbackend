@@ -1,4 +1,4 @@
-package com.example.bidding.model.user;
+package com.example.bidding.entity.user;
 
 public enum RoleEnum {
 

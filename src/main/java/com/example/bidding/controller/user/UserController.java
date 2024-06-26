@@ -1,7 +1,7 @@
 package com.example.bidding.controller.user;
 
-import com.example.bidding.dto.ChangePasswordDto;
-import com.example.bidding.model.user.User;
+import com.example.bidding.model.dto.ChangePasswordDto;
+import com.example.bidding.entity.user.User;
 import com.example.bidding.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
