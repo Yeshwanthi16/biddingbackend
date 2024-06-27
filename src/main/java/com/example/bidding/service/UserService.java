@@ -5,6 +5,7 @@ import com.example.bidding.exceptions.PasswordNotMatchException;
 import com.example.bidding.entity.user.User;
 import com.example.bidding.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

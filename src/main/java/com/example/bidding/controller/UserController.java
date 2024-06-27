@@ -1,6 +1,6 @@
-package com.example.bidding.controller.user;
+package com.example.bidding.controller;
 
-import com.example.bidding.model.dto.ChangePasswordDto;
+import com.example.bidding.model.dto.ChangePassword;
 import com.example.bidding.entity.user.User;
 import com.example.bidding.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +35,9 @@ public class UserController {
     @PutMapping("/change-password")
     @Operation(summary = "Change password")
     public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetails userDetails,
-                                            ChangePasswordDto changePasswordDto) {
-        userService.changePassword(userDetails.getUsername(), changePasswordDto.getOldPassword(),
-                changePasswordDto.getNewPassword());
+                                            ChangePassword changePassword) {
+        userService.changePassword(userDetails.getUsername(), changePassword.getOldPassword(),
+                changePassword.getNewPassword());
         return ResponseEntity.ok("Password changed successfully");
 
     }
