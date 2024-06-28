@@ -1,46 +1,28 @@
 package com.example.bidding.controller;
 
+import com.example.bidding.Security.JwtUtils;
+import com.example.bidding.Security.RefreshTokenService;
+import com.example.bidding.entity.RefreshToken;
 import com.example.bidding.entity.user.RoleEnum;
 import com.example.bidding.entity.user.User;
 import com.example.bidding.exceptions.DuplicatedEmailException;
 import com.example.bidding.exceptions.DuplicatedLoginException;
 import com.example.bidding.exceptions.NotFoundException;
-import com.example.bidding.model.dto.LoginRequest;
-import com.example.bidding.model.dto.TokenRefreshRequest;
+import com.example.bidding.model.dto.*;
 import com.example.bidding.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.dto.auth.JwtResponse;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.dto.auth.LoginRequest;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.dto.auth.SingUpRequest;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.dto.auth.TokenRefreshRequest;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.dto.auth.TokenRefreshResponse;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.exceptions.DuplicatedEmailException;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.exceptions.DuplicatedLoginException;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.exceptions.NotFoundException;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.model.RefreshToken;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.model.user.RoleEnum;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.model.user.User;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.security.JwtUtils;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.security.UserDetailsImpl;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.service.impl.UserDetailsServiceImpl;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.service.interfaces.RefreshTokenService;
-import pl.lodz.p.pstrachota.auctions_spring_boot_project.service.interfaces.UserService;
+import org.springframework.web.bind.annotation.*;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -50,40 +32,37 @@ public class AuthController {
 
     final AuthenticationManager authenticationManager;
 
-//    final RefreshTokenService refreshTokenService;
-
-    final UserService userDetailsService;
+    final RefreshTokenService refreshTokenService;
 
     final UserService userService;
 
     final PasswordEncoder encoder;
 
-//    final JwtUtils jwtUtils;
+    final JwtUtils jwtUtils;
 
     @PostMapping("/signin")
     @Operation(summary = "Sign in to the application")
-    public ResponseEntity<String> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                         loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         String jwt = jwtUtils.generateJwtToken(authentication);
-        UserService userDetails = (UserService) authentication.getPrincipal();
-//        String role = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList()).get(0);
 
-//        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-//        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken()));
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+
+        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken()));
     }
 
     @PostMapping("/refreshToken")
     @Operation(summary = "Refresh token")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<?> refreshToken(
+    public ResponseEntity<TokenRefreshResponse> refreshToken(
             @Valid @RequestBody TokenRefreshRequest tokenRefreshRequest) {
 
         String requestRefreshToken = tokenRefreshRequest.getRefreshToken();
@@ -100,19 +79,19 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "Sign up to the application")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody SingUpRequest singupRequest) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
 
-        if (userService.existsByUsername(singupRequest.getUsername())) {
+        if (userService.existsByUsername(signUpRequest.getUsername())) {
             throw new DuplicatedLoginException("Error: Username is already taken!");
         }
 
-        if (userService.existsByEmail(singupRequest.getEmail())) {
+        if (userService.existsByEmail(signUpRequest.getEmail())) {
             throw new DuplicatedEmailException("Error: Email is already in use!");
         }
 
-        User user = new User(singupRequest.getEmail(),
-                encoder.encode(singupRequest.getPassword()),
-                singupRequest.getUsername()
+        User user = new User(signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getUsername()
         );
 
         user.setRoleName(RoleEnum.ROLE_USER);

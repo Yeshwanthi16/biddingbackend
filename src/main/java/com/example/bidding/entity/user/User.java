@@ -34,4 +34,10 @@ public class User extends AbstractEntity {
 
     @Convert(converter = RoleEnumConverter.class)
     private RoleEnum roleName;
+
+    public User(String email, String password, String username) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+    }
 }
