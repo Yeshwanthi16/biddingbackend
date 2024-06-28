@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -79,7 +84,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "Sign up to the application")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
 
         if (userService.existsByUsername(signUpRequest.getUsername())) {
             throw new DuplicatedLoginException("Error: Username is already taken!");
@@ -94,8 +99,13 @@ public class AuthController {
                 signUpRequest.getUsername()
         );
 
+        ApiResponse apiResponse = new ApiResponse("User Created successfully");
+
         user.setRoleName(RoleEnum.ROLE_USER);
         userService.createUser(user);
-        return ResponseEntity.status(201).body("User registered successfully!");
+
+        return  ResponseEntity.
+                status(HttpStatus.CREATED).
+                body(apiResponse);
     }
 }
