@@ -2,6 +2,7 @@ package com.example.bidding.controller;
 
 import com.example.bidding.Security.JwtUtils;
 import com.example.bidding.Security.RefreshTokenService;
+import com.example.bidding.Security.UserDetailsImpl;
 import com.example.bidding.entity.RefreshToken;
 import com.example.bidding.entity.user.RoleEnum;
 import com.example.bidding.entity.user.User;
@@ -9,6 +10,7 @@ import com.example.bidding.exceptions.DuplicatedEmailException;
 import com.example.bidding.exceptions.DuplicatedLoginException;
 import com.example.bidding.exceptions.NotFoundException;
 import com.example.bidding.model.dto.*;
+import com.example.bidding.service.UserDetailsServiceImpl;
 import com.example.bidding.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,10 +26,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -38,6 +36,8 @@ public class AuthController {
     final AuthenticationManager authenticationManager;
 
     final RefreshTokenService refreshTokenService;
+
+    final UserDetailsServiceImpl userDetailsService;
 
     final UserService userService;
 
@@ -57,7 +57,7 @@ public class AuthController {
 
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 

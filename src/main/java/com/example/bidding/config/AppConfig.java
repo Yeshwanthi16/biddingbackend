@@ -1,6 +1,7 @@
 package com.example.bidding.config;
 
 import com.example.bidding.repository.UserRepository;
+import com.example.bidding.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AppConfig {
     private final UserRepository repository;
+    private final UserDetailsServiceImpl userDetailsService;
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> (UserDetails) repository.findByUsername(username)
@@ -32,5 +34,13 @@ public class AppConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
     }
 }

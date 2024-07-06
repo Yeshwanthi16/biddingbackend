@@ -1,5 +1,7 @@
 package com.example.bidding.Security;
 
+import com.example.bidding.config.AppConfig;
+import com.example.bidding.service.UserDetailsServiceImpl;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +40,8 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -70,4 +75,6 @@ public class SecurityConfiguration {
         return
                 web -> web.ignoring().anyRequest();
     }
+
+
 }

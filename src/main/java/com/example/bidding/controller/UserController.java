@@ -1,5 +1,6 @@
 package com.example.bidding.controller;
 
+import com.example.bidding.Security.UserDetailsImpl;
 import com.example.bidding.model.dto.ChangePassword;
 import com.example.bidding.entity.user.User;
 import com.example.bidding.service.UserService;
@@ -7,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +34,7 @@ public class UserController {
 
     @PutMapping("/change-password")
     @Operation(summary = "Change password")
-    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                             ChangePassword changePassword) {
         userService.changePassword(userDetails.getUsername(), changePassword.getOldPassword(),
                 changePassword.getNewPassword());

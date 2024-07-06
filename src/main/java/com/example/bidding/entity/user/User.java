@@ -14,6 +14,9 @@ import lombok.*;
 @Entity
 @Data
 @Table(name = "_user")
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class User extends AbstractEntity {
 
     @Id
