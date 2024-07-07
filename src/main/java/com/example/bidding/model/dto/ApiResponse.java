@@ -10,4 +10,6 @@ import org.springframework.http.ResponseEntity;
 public class ApiResponse {
 
     private String response;
+
+    private HttpStatus status;
 }

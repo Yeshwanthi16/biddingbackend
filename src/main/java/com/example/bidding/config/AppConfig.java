@@ -1,7 +1,6 @@
 package com.example.bidding.config;
 
 import com.example.bidding.repository.UserRepository;
-import com.example.bidding.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,18 +16,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AppConfig {
     private final UserRepository repository;
-    private final UserDetailsServiceImpl userDetailsService;
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> (UserDetails) repository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService());
         return authProvider;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> repository.findByEmail(username)
+                .map(user -> org.springframework.security.core.userdetails.User.builder()
+                        .username(user.getEmail())
+                        .password(user.getPassword())
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
     @Bean
@@ -36,11 +40,4 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
-    }
 }

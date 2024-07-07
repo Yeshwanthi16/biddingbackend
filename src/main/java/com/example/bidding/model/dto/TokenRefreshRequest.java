@@ -10,5 +10,7 @@ public class TokenRefreshRequest {
 
     @NotBlank
     private String refreshToken;
+    @NotBlank
+    private String email;
 
 }

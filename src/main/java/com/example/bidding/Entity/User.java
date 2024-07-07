@@ -1,23 +1,23 @@
-package com.example.bidding.entity.user;
+package com.example.bidding.Entity;
 
 
-import com.example.bidding.entity.AbstractEntity;
-import com.example.bidding.service.Converter.RoleEnumConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
-
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@Table(name = "_user")
-@NoArgsConstructor
 @Builder
+@Table(name = "_user")
 @AllArgsConstructor
-public class User extends AbstractEntity {
+@NoArgsConstructor
+public class User {
 
     @Id
     @GeneratedValue(generator = "user-sequence-generator")
@@ -35,12 +35,5 @@ public class User extends AbstractEntity {
     @Column(unique = true)
     private String username;
 
-    @Convert(converter = RoleEnumConverter.class)
-    private RoleEnum roleName;
-
-    public User(String email, String password, String username) {
-        this.email = email;
-        this.password = password;
-        this.username = username;
-    }
 }
+

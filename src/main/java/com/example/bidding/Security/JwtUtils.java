@@ -6,9 +6,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -16,46 +15,49 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Component
+@Service
 @Slf4j
 public class JwtUtils {
 
-    @Value("${auctions.app.jwtSecret}")
-    private String jwtSecret;
+    @Value("${application.signingKey}")
+    private String key;
 
-    public String generateJwtToken(Authentication auth) {
-        return createToken(new HashMap<>(), auth);
+    @Value("${bidding.app.jwtRefreshExpirationMs}")
+    private int jwtExpirationMs;
+
+    public String generateToken(String email) {
+        return createToken(new HashMap<>(), email);
     }
 
-    public String createToken(Map<String, Object> claims, Authentication auth) {
-
-        UserDetails userPrincipal = (UserDetails) auth.getPrincipal();
-
+    public String createToken(Map<String, Object> claims, String email) {
         return Jwts
                 .builder()
                 .claims(claims)
-                .claim("Username", userPrincipal.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .claim("email", email)
+                .issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(getSignKey())
                 .compact();
     }
 
     private SecretKey getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        if (key == null) {
+            throw new IllegalStateException("Signing key cannot be null");
+        }
+        byte[] keyBytes = Decoders.BASE64.decode(key);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public boolean validateJwtToken(String token, UserDetails userDetails) {
-        final String username = getUserNameFromJwtToken(token);
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
-       return extractClaim(token, Claims::getExpiration).before(new Date());
+    public boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
 
-    public String getUserNameFromJwtToken(String token) {
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -64,26 +66,17 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    public String generateTokenFromUsername(String username) {
-        return Jwts
-                .builder()
-                .claims(new HashMap<>())
-                .claim("Username",username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*24))
-                .signWith(getSignKey())
-                .compact();
-    }
-
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
                 .verifyWith(getSignKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-//        .parseSignedClaims(token)
-//                .getPayload();
+                .parseSignedClaims(token)
+                .getPayload();
 
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 }

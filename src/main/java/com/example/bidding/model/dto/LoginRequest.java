@@ -9,7 +9,7 @@ import lombok.*;
 public class LoginRequest {
 
     @NotBlank
-    private String username;
+    private String email;
 
     @NotBlank
     private String password;
